@@ -1,5 +1,11 @@
 #!/bin/bash
 
-pidmain=`echo pidof main`
+pidmain=`pidof main`
+echo $pidmain
 
-echo `perf stat -e chache-misses -p $pidmain`
+perfevent=`perf list |grep cache-misses | awk '{print $1}'|sed -n '1p'`
+
+echo $perfevent
+out=`perf stat -e $perfevent -p $pidmain`
+
+#echo $out
