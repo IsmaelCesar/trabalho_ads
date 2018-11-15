@@ -6,8 +6,9 @@
 */
 int *inicializa_array(int t){
     int *array = calloc(t,sizeof(int));
+    int cont = t;
     for(int i = 0; i < t ; i++){
-        array[i] = t--;
+        array[i] = cont--;
     }
     return array;
 }

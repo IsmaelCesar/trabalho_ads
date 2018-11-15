@@ -1,11 +1,11 @@
 #!/bin/bash
 
 pidmain=`pidof main`
-echo $pidmain
+echo  'PID:' $pidmain
 
 perfevent=`perf list |grep cache-misses | awk '{print $1}'|sed -n '1p'`
 
-echo $perfevent
-out=`perf stat -e $perfevent -p $pidmain`
+#echo  'Evento monitorado:'$perfevent
+out=`perf stat -B -e $perfevent -p $pidmain`
 
 #echo $out
