@@ -26,31 +26,41 @@ int main(){
         printf("4->InsertionSort\n");
         printf("5->BubbleSort\n");
         printf("0->sair\n");
-        scanf("%d",&opc);
+        scanf("%d",&opc);            
         int tam = 0;
-        printf("Digite o tamanho do array a ser ordenado:\n");
-        scanf("%d",&tam);
-        array = inicializa_array(tam);
         switch(opc){
             case 0:
             isFinishedRunning = 1;
             break;
             case 1:
-                printf("QuickSort Selecionado:\n");            
-                
-                
+                printf("QuickSort Selecionado:\n");                                    
+                printf("Digite o tamanho do array a ser ordenado:");
+                scanf("%d\n",&tam);
+                array = inicializa_array(tam);
             break;
             case 2:
                 printf("RadixSort Selecionado:\n");
+                printf("Digite o tamanho do array a ser ordenado:");
+                scanf("%d\n",&tam);
+                array = inicializa_array(tam);
             break;
             case 3:
             printf("BucketSort Selecionado:\n");
+                printf("Digite o tamanho do array a ser ordenado:");
+                scanf("%d\n",&tam);
+                array = inicializa_array(tam);
             break;
             case 4:
             printf("InsertionSort Selecionado:\n");            
+                printf("Digite o tamanho do array a ser ordenado:");
+                scanf("%d\n",&tam);
+                array = inicializa_array(tam);
             break;
             case 5:
             printf("BubbleSort Selecionado:\n");
+                printf("Digite o tamanho do array a ser ordenado:");
+                scanf("%d\n",&tam);
+                array = inicializa_array(tam);
             break;
             default:
             printf("Opcao invalida\n");
