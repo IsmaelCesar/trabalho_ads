@@ -8,7 +8,8 @@
 #include <linux/perf_event.h>
 #include <asm/unistd.h>
 
-int tam = 1000000;
+//int tam = 1000000;
+int tam = 10;
 
 /*Procedimento para criar e inicializar um array de tamanho t
 *e retorna-lo. O array sera inicializado com valores de tras pra frente
@@ -98,6 +99,8 @@ void desativarPerf(int fd){
     ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
 }
 
+//          ALOGRITMOS DE ORDENACAO
+
 void quicksort(int values[], int began, int end)
 {
     int i, j, pivo, aux;
@@ -158,6 +161,78 @@ void radixsort(int vetor[], int tamanho) {
     free(b);
 }
 
+void insertion_sort(int vetor[],int t){
+    int e, j;
+
+    for (int i = 1; i < t; i++) {
+        e = vetor[i];
+        j = i - 1;
+
+        while ((j >= 0) && (vetor[j] > e)) {
+            vetor[j + 1] = vetor[j];
+            j--;
+        }
+
+        vetor[j + 1] = e;
+    }
+}
+
+
+void bubble_sort(int vetor[], int t) {
+    int i, j, temp;
+
+    for (i = 0; i < t - 1; i++){
+        for (j = (i+1); j < t; j++){
+            if (vetor[j] < vetor[i]){
+                temp = vetor[i];
+                vetor[i] = vetor[j];
+                vetor[j] = temp;
+            }
+        }
+    }
+}
+
+
+void heap_sort(int vetor[], int tam){
+
+    for(int i = tam-1; i < 1; i--){
+        //troca
+        int temp = vetor[i];
+        vetor[i] = vetor[1];
+        vetor[1] = temp;
+
+        //Transforma em heap maxima
+        int fesq = 0;
+        int fdir = 0;
+        int maior = 0;
+        for(int j = 0; j < tam/2;j++){
+
+            if(j == 0)
+                fesq = 1;
+            else
+                fesq = 2*j;
+
+            fdir = 2*j+1;
+
+            if(fesq< tam && vetor[fesq] > vetor[j])
+                maior = fesq;
+            else
+                maior = j;
+            if(fdir < tam && vetor[fdir] > vetor[maior])
+                maior = fdir;
+
+            if(maior != j){
+                int temp = vetor[j];
+                vetor[j] = vetor[maior];
+                vetor[maior] = temp;
+            }
+        }
+
+    }
+
+}
+
+
 int main(){
     int fd_cacheL1_read_misses, fd_cacheLL_read_misses, fd_PC, fd_page_faults;
     int fd_cacheL1_read_access, fd_cacheLL_read_access;
@@ -187,9 +262,9 @@ int main(){
     ativarPerf(fd_cacheLL_write_access);
     ativarPerf(fd_PC);
     ativarPerf(fd_page_faults);
-    int isFinishedRunning = 0;
+
     int *array = NULL;
-    int opc = 1;
+    int opc = 5;
     switch(opc){
         case 1:
             array = inicializa_array(tam);
@@ -201,14 +276,18 @@ int main(){
             break;
         case 3:
             array = inicializa_array(tam);
+            insertion_sort(array,tam);
             break;
         case 4:
+            array = inicializa_array(tam);
+            bubble_sort(array,tam);
             break;
         case 5:
             array = inicializa_array(tam);
+            heap_sort(array,tam);
             break;
         default:
-//            printf("Opcao invalida\n");
+            printf("Opcao invalida\n");
             break;
     }
     desativarPerf(fd_cacheL1_read_misses);
