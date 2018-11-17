@@ -193,43 +193,44 @@ void bubble_sort(int vetor[], int t) {
 }
 
 
-void heap_sort(int vetor[], int tam){
-
-    for(int i = tam-1; i < 1; i--){
+void heap_sort(int vetor[], int t){
+    int i = t-1;
+    while( i > 0){
         //troca
-        int temp = vetor[i];
-        vetor[i] = vetor[1];
-        vetor[1] = temp;
+        int temp = vetor[0];
+        vetor[0] = vetor[i];
+        vetor[i] = temp;
 
+        i--;
         //Transforma em heap maxima
         int fesq = 0;
         int fdir = 0;
-        int maior = 0;
-        for(int j = 0; j < tam/2;j++){
+        int maior = -1;
+        int j = 0;
+        int j_m1 = j-1;
+        while(j_m1 != j){
+            fesq = 2 * j+1;
+            fdir = 2*j+2;
 
-            if(j == 0)
-                fesq = 1;
-            else
-                fesq = 2*j;
-
-            fdir = 2*j+1;
-
-            if(fesq< tam && vetor[fesq] > vetor[j])
+            if(fesq<= i && vetor[fesq] > vetor[j])
                 maior = fesq;
             else
                 maior = j;
-            if(fdir < tam && vetor[fdir] > vetor[maior])
+            if(fdir <= i && vetor[fdir] > vetor[maior])
                 maior = fdir;
 
-            if(maior != j){
-                int temp = vetor[j];
+            if(maior != j) {
+                int temp_2 = vetor[j];
                 vetor[j] = vetor[maior];
-                vetor[maior] = temp;
+                vetor[maior] = temp_2;
+                j_m1 = j;
             }
+            else{
+                j_m1 = maior;
+            }
+            j = maior;
         }
-
     }
-
 }
 
 
