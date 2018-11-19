@@ -9,7 +9,7 @@
 #include <asm/unistd.h>
 
 //int tam = 1000000;
-int tam = 10;
+int tam = 100000;
 
 /*Procedimento para criar e inicializar um array de tamanho t
 *e retorna-lo. O array sera inicializado com valores de tras pra frente
@@ -30,6 +30,7 @@ long perf_event_open(struct perf_event_attr *hw_event, pid_t pid, int cpu, int g
 }
 
 struct perf_event_attr* startPerfStruct(int type, int *fd){
+    printf("%d\n", type);
     struct perf_event_attr *aux = calloc(1,sizeof(struct perf_event_attr));
     memset(aux, 0, sizeof(struct perf_event_attr));
     aux->size = sizeof(struct perf_event_attr);
@@ -79,6 +80,15 @@ struct perf_event_attr* startPerfStruct(int type, int *fd){
             aux->type = PERF_TYPE_SOFTWARE;
             aux->config = PERF_COUNT_SW_PAGE_FAULTS;
             break;
+	case 11: //CACHE MISSES
+	    aux->type = PERF_TYPE_HARDWARE;
+	    aux->config = PERF_COUNT_HW_CACHE_MISSES;
+	    break;
+	case 12:
+	    aux->type = PERF_TYPE_HARDWARE;
+	    aux->config = PERF_COUNT_HW_CACHE_REFERENCES;
+	    break;
+
     }
     *fd = perf_event_open(aux, 0, -1, -1, 0);
     //printf("%d ", type);
@@ -239,7 +249,7 @@ int main(){
     int fd_cacheL1_read_access, fd_cacheLL_read_access;
     int fd_cacheL1_write_misses, fd_cacheLL_write_misses;
     int fd_cacheL1_write_access, fd_cacheLL_write_access;
-
+    int fd_cache_misses, fd_cache_accesses;
     struct perf_event_attr* cacheL1_read_misses = startPerfStruct(1, &fd_cacheL1_read_misses);
     struct perf_event_attr* cacheL1_read_access = startPerfStruct(2, &fd_cacheL1_read_access);
     //struct perf_event_attr* cacheL1_write_misses = startPerfStruct(3, &fd_cacheL1_write_misses);
@@ -253,6 +263,8 @@ int main(){
     struct perf_event_attr* PC      = startPerfStruct(9, &fd_PC);
     struct perf_event_attr* PG	    = startPerfStruct(10, &fd_page_faults);
 
+    struct perf_event_attr* cache_misses = startPerfStruct(11, &fd_cache_misses);
+    struct perf_event_attr* cache_accesses = startPerfStruct(12, &fd_cache_accesses);
     ativarPerf(fd_cacheL1_read_misses);
     ativarPerf(fd_cacheL1_read_access);
     ativarPerf(fd_cacheL1_write_misses);
@@ -263,9 +275,11 @@ int main(){
     ativarPerf(fd_cacheLL_write_access);
     ativarPerf(fd_PC);
     ativarPerf(fd_page_faults);
+    ativarPerf(fd_cache_misses);
+    ativarPerf(fd_cache_accesses);
 
     int *array = NULL;
-    int opc = 5;
+    int opc = 1;
     switch(opc){
         case 1:
             array = inicializa_array(tam);
@@ -301,6 +315,8 @@ int main(){
     desativarPerf(fd_cacheLL_write_access);
     desativarPerf(fd_PC);
     desativarPerf(fd_page_faults);
+    desativarPerf(fd_cache_misses);
+    desativarPerf(fd_cache_accesses);
     long long count;
 
     read(fd_cacheL1_read_misses, &count, sizeof(long long));
@@ -342,6 +358,14 @@ int main(){
     read(fd_page_faults, &count,sizeof(long long));
     printf("%lld page faults\n", count);
     close(fd_PC);
+
+    read(fd_cache_misses, &count, sizeof(long long));
+    printf("%lld total cache misses\n", count);
+    close(fd_cache_misses);
+
+    read(fd_cache_accesses, &count, sizeof(long long));
+    printf("%lld total cache accesses\n", count);
+    close(fd_cache_accesses);
 
     float clks = CLOCKS_PER_SEC;
     printf("%.2fs\n", clock()/clks);
