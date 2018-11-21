@@ -8,17 +8,18 @@
 #include <linux/perf_event.h>
 #include <asm/unistd.h>
 
-//int tam = 1000000;
-int tam = 100000;
+//long long int tam = 1000000000;
+long long tam = 100000000;
 
 /*Procedimento para criar e inicializar um array de tamanho t
 *e retorna-lo. O array sera inicializado com valores de tras pra frente
 */
-int *inicializa_array(int t){
-    int *array = malloc(t*sizeof(int));
-    int cont = t;
+long long *inicializa_array(long long t){
+    srand(time(NULL));
+    long long *array = malloc(t*sizeof(long long));
+    long long cont = t;
     for(int i = 0; i < t ; i++){
-        array[i] = cont--;
+        array[i] = rand();
     }
     return array;
 }
@@ -111,9 +112,9 @@ void desativarPerf(int fd){
 
 //          ALOGRITMOS DE ORDENACAO
 
-void quicksort(int values[], int began, int end)
+void quicksort(long long values[], long long began, long long end)
 {
-    int i, j, pivo, aux;
+    long long  i, j, pivo, aux;
     i = began;
     j = end-1;
     pivo = values[(began + end) / 2];
@@ -142,13 +143,13 @@ void quicksort(int values[], int began, int end)
         quicksort(values, i, end);
 }
 
-void radixsort(int vetor[], int tamanho) {
-    int i;
-    int *b;
-    int maior = vetor[0];
-    int exp = 1;
+void radixsort(long long  vetor[], long long tamanho) {
+    long long i;
+    long long *b;
+    long long maior = vetor[0];
+    long long exp = 1;
 
-    b = (int *)calloc(tamanho, sizeof(int));
+    b = (long long *)calloc(tamanho, sizeof(long long));
 
     for (i = 0; i < tamanho; i++) {
         if (vetor[i] > maior)
@@ -156,7 +157,7 @@ void radixsort(int vetor[], int tamanho) {
     }
 
     while (maior/exp > 0) {
-        int bucket[10] = { 0 };
+        long long bucket[10] = { 0 };
         for (i = 0; i < tamanho; i++)
             bucket[(vetor[i] / exp) % 10]++;
         for (i = 1; i < 10; i++)
@@ -171,10 +172,10 @@ void radixsort(int vetor[], int tamanho) {
     free(b);
 }
 
-void insertion_sort(int vetor[],int t){
-    int e, j;
+void insertion_sort(long long vetor[],long long t){
+    long long e, j;
 
-    for (int i = 1; i < t; i++) {
+    for (long long i = 1; i < t; i++) {
         e = vetor[i];
         j = i - 1;
 
@@ -188,8 +189,8 @@ void insertion_sort(int vetor[],int t){
 }
 
 
-void bubble_sort(int vetor[], int t) {
-    int i, j, temp;
+void bubble_sort(long long vetor[], long long t) {
+    long long i, j, temp;
 
     for (i = 0; i < t - 1; i++){
         for (j = (i+1); j < t; j++){
@@ -203,21 +204,21 @@ void bubble_sort(int vetor[], int t) {
 }
 
 
-void heap_sort(int vetor[], int t){
+void heap_sort(long long vetor[], long long t){
     int i = t-1;
     while( i > 0){
         //troca
-        int temp = vetor[0];
+        long long temp = vetor[0];
         vetor[0] = vetor[i];
         vetor[i] = temp;
 
         i--;
         //Transforma em heap maxima
-        int fesq = 0;
-        int fdir = 0;
-        int maior = -1;
-        int j = 0;
-        int j_m1 = j-1;
+        long long fesq = 0;
+        long long fdir = 0;
+        long long maior = -1;
+        long long j = 0;
+        long long j_m1 = j-1;
         while(j_m1 != j){
             fesq = 2 * j+1;
             fdir = 2*j+2;
@@ -230,7 +231,7 @@ void heap_sort(int vetor[], int t){
                 maior = fdir;
 
             if(maior != j) {
-                int temp_2 = vetor[j];
+                long long  temp_2 = vetor[j];
                 vetor[j] = vetor[maior];
                 vetor[maior] = temp_2;
                 j_m1 = j;
@@ -245,6 +246,7 @@ void heap_sort(int vetor[], int t){
 
 
 int main(){
+    long long *array = inicializa_array(tam);
     int fd_cacheL1_read_misses, fd_cacheLL_read_misses, fd_PC, fd_page_faults;
     int fd_cacheL1_read_access, fd_cacheLL_read_access;
     int fd_cacheL1_write_misses, fd_cacheLL_write_misses;
@@ -267,7 +269,7 @@ int main(){
     struct perf_event_attr* cache_accesses = startPerfStruct(12, &fd_cache_accesses);
     ativarPerf(fd_cacheL1_read_misses);
     ativarPerf(fd_cacheL1_read_access);
-    ativarPerf(fd_cacheL1_write_misses);
+    //ativarPerf(fd_cacheL1_write_misses);
     ativarPerf(fd_cacheL1_write_access);
     ativarPerf(fd_cacheLL_read_misses);
     ativarPerf(fd_cacheLL_read_access);
@@ -278,27 +280,21 @@ int main(){
     ativarPerf(fd_cache_misses);
     ativarPerf(fd_cache_accesses);
 
-    int *array = NULL;
-    int opc = 1;
+    int opc = 3;
     switch(opc){
         case 1:
-            array = inicializa_array(tam);
             quicksort(array,0, tam);
             break;
         case 2:
-            array = inicializa_array(tam);
             radixsort(array, tam);
             break;
         case 3:
-            array = inicializa_array(tam);
             insertion_sort(array,tam);
             break;
         case 4:
-            array = inicializa_array(tam);
             bubble_sort(array,tam);
             break;
         case 5:
-            array = inicializa_array(tam);
             heap_sort(array,tam);
             break;
         default:
