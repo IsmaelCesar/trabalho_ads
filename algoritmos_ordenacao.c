@@ -9,18 +9,23 @@
 #include <asm/unistd.h>
 
 //long long int tam = 1000000000;
-long long tam = 100000000;
+long long tam = 20;
 
 /*Procedimento para criar e inicializar um array de tamanho t
 *e retorna-lo. O array sera inicializado com valores de tras pra frente
 */
 long long *inicializa_array(long long t){
+    printf("Iniciado Geracao de valores\n");
     srand(time(NULL));
-    long long *array = malloc(t*sizeof(long long));
-    long long cont = t;
-    for(int i = 0; i < t ; i++){
+    printf("%d\n", t);
+    long long *array = (long long*) malloc(t*sizeof(long long));
+    printf("Array Criado\n");
+    int i;
+    for(i = 0; i < t ; i++){
+        printf("Iniciado elemento %d\n", i+1);
         array[i] = rand();
     }
+    printf("REtornando vetor");
     return array;
 }
 
@@ -244,43 +249,74 @@ void heap_sort(long long vetor[], long long t){
     }
 }
 
+long long* couting_sort(long long *array, int tam){
+    printf("CoutingSort Comecou");
+    // int i = 0;
+    //  int aux[2] = {0, 0};
+
+    // for (i = 0; i <= size; i++)
+    //     aux[array[i]]++;
+
+    // aux[1] += aux[0];
+
+    // for (i = size - 1; i >= 0; i--)
+    //     array[--aux[array[i]]] = array[i];
+    long long i;
+    long long maior = 0x800000000000000;
+    for(i = 0; i < tam;i++)
+        if(array[i] > maior)
+            maior = array[i];
+    long long b[maior++];
+    for(i = 0; i < tam;i++)
+        b[array[i]]++;
+    
+    for(i = 1; i < maior-1;i++)
+        b[i] += b[i-1];
+    
+    long long *c = malloc(tam*sizeof(long long));
+    for(i = 0; i < tam;i++)
+        c[i] = --b[array[i]];
+    
+    return c;
+}
+
 
 int main(){
     long long *array = inicializa_array(tam);
-    int fd_cacheL1_read_misses, fd_cacheLL_read_misses, fd_PC, fd_page_faults;
-    int fd_cacheL1_read_access, fd_cacheLL_read_access;
-    int fd_cacheL1_write_misses, fd_cacheLL_write_misses;
-    int fd_cacheL1_write_access, fd_cacheLL_write_access;
-    int fd_cache_misses, fd_cache_accesses;
-    struct perf_event_attr* cacheL1_read_misses = startPerfStruct(1, &fd_cacheL1_read_misses);
-    struct perf_event_attr* cacheL1_read_access = startPerfStruct(2, &fd_cacheL1_read_access);
-    //struct perf_event_attr* cacheL1_write_misses = startPerfStruct(3, &fd_cacheL1_write_misses);
-    struct perf_event_attr* cacheL1_write_access = startPerfStruct(4, &fd_cacheL1_write_access);
+    // int fd_cacheL1_read_misses, fd_cacheLL_read_misses, fd_PC, fd_page_faults;
+    // int fd_cacheL1_read_access, fd_cacheLL_read_access;
+    // int fd_cacheL1_write_misses, fd_cacheLL_write_misses;
+    // int fd_cacheL1_write_access, fd_cacheLL_write_access;
+    // int fd_cache_misses, fd_cache_accesses;
+    // struct perf_event_attr* cacheL1_read_misses = startPerfStruct(1, &fd_cacheL1_read_misses);
+    // struct perf_event_attr* cacheL1_read_access = startPerfStruct(2, &fd_cacheL1_read_access);
+    // //struct perf_event_attr* cacheL1_write_misses = startPerfStruct(3, &fd_cacheL1_write_misses);
+    // struct perf_event_attr* cacheL1_write_access = startPerfStruct(4, &fd_cacheL1_write_access);
 
-    struct perf_event_attr* cacheLL_read_misses = startPerfStruct(5, &fd_cacheLL_read_misses);
-    struct perf_event_attr* cacheLL_read_acess = startPerfStruct(6, &fd_cacheLL_read_access);
-    struct perf_event_attr* cacheLL_write_misses = startPerfStruct(7, &fd_cacheLL_write_misses);
-    struct perf_event_attr* cacheLL_write_access = startPerfStruct(8, &fd_cacheLL_write_access);
+    // //struct perf_event_attr* cacheLL_read_misses = startPerfStruct(5, &fd_cacheLL_read_misses);
+    // struct perf_event_attr* cacheLL_read_acess = startPerfStruct(6, &fd_cacheLL_read_access);
+    // //struct perf_event_attr* cacheLL_write_misses = startPerfStruct(7, &fd_cacheLL_write_misses);
+    // struct perf_event_attr* cacheLL_write_access = startPerfStruct(8, &fd_cacheLL_write_access);
 
-    struct perf_event_attr* PC      = startPerfStruct(9, &fd_PC);
-    struct perf_event_attr* PG	    = startPerfStruct(10, &fd_page_faults);
+    // struct perf_event_attr* PC      = startPerfStruct(9, &fd_PC);
+    // struct perf_event_attr* PG	    = startPerfStruct(10, &fd_page_faults);
 
-    struct perf_event_attr* cache_misses = startPerfStruct(11, &fd_cache_misses);
-    struct perf_event_attr* cache_accesses = startPerfStruct(12, &fd_cache_accesses);
-    ativarPerf(fd_cacheL1_read_misses);
-    ativarPerf(fd_cacheL1_read_access);
-    //ativarPerf(fd_cacheL1_write_misses);
-    ativarPerf(fd_cacheL1_write_access);
-    ativarPerf(fd_cacheLL_read_misses);
-    ativarPerf(fd_cacheLL_read_access);
-    ativarPerf(fd_cacheLL_write_misses);
-    ativarPerf(fd_cacheLL_write_access);
-    ativarPerf(fd_PC);
-    ativarPerf(fd_page_faults);
-    ativarPerf(fd_cache_misses);
-    ativarPerf(fd_cache_accesses);
+    // struct perf_event_attr* cache_misses = startPerfStruct(11, &fd_cache_misses);
+    // //struct perf_event_attr* cache_accesses = startPerfStruct(12, &fd_cache_accesses);
+    // //ativarPerf(fd_cacheL1_read_misses);
+    // ativarPerf(fd_cacheL1_read_access);
+    // //ativarPerf(fd_cacheL1_write_misses);
+    // ativarPerf(fd_cacheL1_write_access);
+    // //ativarPerf(fd_cacheLL_read_misses);
+    // ativarPerf(fd_cacheLL_read_access);
+    // //ativarPerf(fd_cacheLL_write_misses);
+    // ativarPerf(fd_cacheLL_write_access);
+    // ativarPerf(fd_PC);
+    // ativarPerf(fd_page_faults);
+    // ativarPerf(fd_cache_misses);
+    // //ativarPerf(fd_cache_accesses);
 
-    int opc = 3;
+    int opc = 6;
     switch(opc){
         case 1:
             quicksort(array,0, tam);
@@ -297,71 +333,74 @@ int main(){
         case 5:
             heap_sort(array,tam);
             break;
+        case 6:
+            array = couting_sort(array, tam);
+            break;
         default:
             printf("Opcao invalida\n");
             break;
     }
-    desativarPerf(fd_cacheL1_read_misses);
-    desativarPerf(fd_cacheL1_read_access);
-    //desativarPerf(fd_cacheL1_write_misses);
-    desativarPerf(fd_cacheL1_write_access);
-    desativarPerf(fd_cacheLL_read_misses);
-    desativarPerf(fd_cacheLL_read_access);
-    desativarPerf(fd_cacheLL_write_misses);
-    desativarPerf(fd_cacheLL_write_access);
-    desativarPerf(fd_PC);
-    desativarPerf(fd_page_faults);
-    desativarPerf(fd_cache_misses);
-    desativarPerf(fd_cache_accesses);
-    long long count;
+    // desativarPerf(fd_cacheL1_read_misses);
+    // desativarPerf(fd_cacheL1_read_access);
+    // //desativarPerf(fd_cacheL1_write_misses);
+    // desativarPerf(fd_cacheL1_write_access);
+    // //desativarPerf(fd_cacheLL_read_misses);
+    // desativarPerf(fd_cacheLL_read_access);
+    // //desativarPerf(fd_cacheLL_write_misses);
+    // desativarPerf(fd_cacheLL_write_access);
+    // desativarPerf(fd_PC);
+    // desativarPerf(fd_page_faults);
+    // desativarPerf(fd_cache_misses);
+    // //desativarPerf(fd_cache_accesses);
+    // long long count;
 
-    read(fd_cacheL1_read_misses, &count, sizeof(long long));
-    printf("%lld cache L1D read misses\n", count);
-    close (fd_cacheL1_read_misses);
+    // read(fd_cacheL1_read_misses, &count, sizeof(long long));
+    // printf("%lld cache L1D read misses\n", count);
+    // close (fd_cacheL1_read_misses);
 
-    read(fd_cacheL1_read_access, &count, sizeof(long long));
-    printf("%lld cache L1D read accesses\n", count);
-    close (fd_cacheL1_read_access);
+    // read(fd_cacheL1_read_access, &count, sizeof(long long));
+    // printf("%lld cache L1D read accesses\n", count);
+    // close (fd_cacheL1_read_access);
 
-    //read(fd_cacheL1_write_misses, &count, sizeof(long long));
-    //printf("%lld cache L1D write misses\n", count);
-    //close (fd_cacheL1_write_misses);
+    // //read(fd_cacheL1_write_misses, &count, sizeof(long long));
+    // //printf("%lld cache L1D write misses\n", count);
+    // //close (fd_cacheL1_write_misses);
 
-    read(fd_cacheL1_write_access, &count, sizeof(long long));
-    printf("%lld cache L1D write accesses\n", count);
-    close (fd_cacheL1_write_access);
+    // read(fd_cacheL1_write_access, &count, sizeof(long long));
+    // printf("%lld cache L1D write accesses\n", count);
+    // close (fd_cacheL1_write_access);
 
-    read(fd_cacheLL_read_misses, &count, sizeof(long long));
-    printf("%lld cache LL read misses\n", count);
-    close(fd_cacheLL_read_misses);
+    // //read(fd_cacheLL_read_misses, &count, sizeof(long long));
+    // //printf("%lld cache LL read misses\n", count);
+    // //close(fd_cacheLL_read_misses);
 
-    read(fd_cacheLL_read_access, &count, sizeof(long long));
-    printf("%lld cache LL read accesses\n", count);
-    close (fd_cacheLL_read_access);
+    // read(fd_cacheLL_read_access, &count, sizeof(long long));
+    // printf("%lld cache LL read accesses\n", count);
+    // close (fd_cacheLL_read_access);
 
-    read(fd_cacheLL_write_access, &count, sizeof(long long));
-    printf("%lld cache LL write misses\n", count);
-    close (fd_cacheLL_write_misses);
+    // //read(fd_cacheLL_write_misses, &count, sizeof(long long));
+    // //printf("%lld cache LL write misses\n", count);
+    // //close (fd_cacheLL_write_misses);
 
-    read(fd_cacheLL_write_access, &count, sizeof(long long));
-    printf("%lld cache LLL write accesses\n", count);
-    close (fd_cacheLL_write_misses);
+    // read(fd_cacheLL_write_access, &count, sizeof(long long));
+    // printf("%lld cache LLL write accesses\n", count);
+    // close (fd_cacheLL_write_access);
 
-    read(fd_PC, &count, sizeof(long long));
-    printf("%lld instructions\n", count);
-    close(fd_PC);
+    // read(fd_PC, &count, sizeof(long long));
+    // printf("%lld instructions\n", count);
+    // close(fd_PC);
 
-    read(fd_page_faults, &count,sizeof(long long));
-    printf("%lld page faults\n", count);
-    close(fd_PC);
+    // read(fd_page_faults, &count,sizeof(long long));
+    // printf("%lld page faults\n", count);
+    // close(fd_PC);
 
-    read(fd_cache_misses, &count, sizeof(long long));
-    printf("%lld total cache misses\n", count);
-    close(fd_cache_misses);
+    // read(fd_cache_misses, &count, sizeof(long long));
+    // printf("%lld total cache misses\n", count);
+    // close(fd_cache_misses);
 
-    read(fd_cache_accesses, &count, sizeof(long long));
-    printf("%lld total cache accesses\n", count);
-    close(fd_cache_accesses);
+    // //read(fd_cache_accesses, &count, sizeof(long long));
+    // //printf("%lld total cache accesses\n", count);
+    // //close(fd_cache_accesses);
 
     float clks = CLOCKS_PER_SEC;
     printf("%.2fs\n", clock()/clks);
