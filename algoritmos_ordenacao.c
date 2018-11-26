@@ -9,23 +9,23 @@
 #include <asm/unistd.h>
 
 //long long int tam = 1000000000;
-long long tam = 20;
+long long tam = 10;
 
 /*Procedimento para criar e inicializar um array de tamanho t
 *e retorna-lo. O array sera inicializado com valores de tras pra frente
 */
 long long *inicializa_array(long long t){
-    printf("Iniciado Geracao de valores\n");
+//    printf("Iniciado Geracao de valores\n");
     srand(time(NULL));
-    printf("%d\n", t);
+//    printf("%d\n", t);
     long long *array = (long long*) malloc(t*sizeof(long long));
-    printf("Array Criado\n");
+//    printf("Array Criado\n");
     int i;
     for(i = 0; i < t ; i++){
-        printf("Iniciado elemento %d\n", i+1);
-        array[i] = rand();
+//        printf("Iniciado elemento %d\n", i+1);
+        array[i] = rand()%0x7FFFFFE + 1;
     }
-    printf("REtornando vetor");
+//    printf("REtornando vetor\n");
     return array;
 }
 
@@ -249,8 +249,8 @@ void heap_sort(long long vetor[], long long t){
     }
 }
 
-long long* couting_sort(long long *array, int tam){
-    printf("CoutingSort Comecou");
+long long* couting_sort(long long v[], int tam) {
+//    printf("CoutingSort Comecou\n");
     // int i = 0;
     //  int aux[2] = {0, 0};
 
@@ -262,21 +262,41 @@ long long* couting_sort(long long *array, int tam){
     // for (i = size - 1; i >= 0; i--)
     //     array[--aux[array[i]]] = array[i];
     long long i;
-    long long maior = 0x800000000000000;
-    for(i = 0; i < tam;i++)
-        if(array[i] > maior)
-            maior = array[i];
-    long long b[maior++];
-    for(i = 0; i < tam;i++)
-        b[array[i]]++;
-    
-    for(i = 1; i < maior-1;i++)
-        b[i] += b[i-1];
-    
-    long long *c = malloc(tam*sizeof(long long));
-    for(i = 0; i < tam;i++)
-        c[i] = --b[array[i]];
-    
+    long long maior = v[0];
+    for (i = 1; i < tam; i++) {
+        if (v[i] > maior) {
+            maior = v[i];
+        }
+    }
+
+    long long *c = calloc(maior, sizeof(long long));
+    //long long c[maior];
+
+    /*for(i = 0;i < maior;i++){
+        c[i] = 0;
+    }*/
+    for (i = 0; i < tam; i++) {
+        c[v[i]-1]++;
+    }
+
+    for (i = 1; i < maior; i++){
+        c[i] += c[i - 1];
+    }
+    //long long *c = malloc(tam*sizeof(long long));
+    long long *b = malloc(maior*sizeof(long long));
+    for(i = 0; i < tam;i++) {
+        b[--c[v[i] - 1]] = v[i];
+//        c[v[i]-1]--;
+    }
+
+//    for(i = 0; i < tam;i++){
+//        printf("%d ", v[i]);
+//    }
+//    printf("\n");
+//    for(i = 0; i < tam;i++){
+//        printf("%d ", b[i]);
+//    }
+//    printf("\n");
     return c;
 }
 
@@ -406,4 +426,5 @@ int main(){
     printf("%.2fs\n", clock()/clks);
     return 0;
 }
+
 
