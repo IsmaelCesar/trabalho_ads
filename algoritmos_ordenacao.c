@@ -1,5 +1,4 @@
 #include <time.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -9,7 +8,7 @@
 #include <asm/unistd.h>
 
 //long long int tam = 1000000000;
-long long tam = 10;
+long long tam = 100000000;
 
 /*Procedimento para criar e inicializar um array de tamanho t
 *e retorna-lo. O array sera inicializado com valores de tras pra frente
@@ -36,7 +35,7 @@ long perf_event_open(struct perf_event_attr *hw_event, pid_t pid, int cpu, int g
 }
 
 struct perf_event_attr* startPerfStruct(int type, int *fd){
-    printf("%d\n", type);
+//    printf("%d\n", type);
     struct perf_event_attr *aux = calloc(1,sizeof(struct perf_event_attr));
     memset(aux, 0, sizeof(struct perf_event_attr));
     aux->size = sizeof(struct perf_event_attr);
@@ -86,14 +85,14 @@ struct perf_event_attr* startPerfStruct(int type, int *fd){
             aux->type = PERF_TYPE_SOFTWARE;
             aux->config = PERF_COUNT_SW_PAGE_FAULTS;
             break;
-	case 11: //CACHE MISSES
-	    aux->type = PERF_TYPE_HARDWARE;
-	    aux->config = PERF_COUNT_HW_CACHE_MISSES;
-	    break;
-	case 12:
-	    aux->type = PERF_TYPE_HARDWARE;
-	    aux->config = PERF_COUNT_HW_CACHE_REFERENCES;
-	    break;
+        case 11: //CACHE MISSES
+            aux->type = PERF_TYPE_HARDWARE;
+            aux->config = PERF_COUNT_HW_CACHE_MISSES;
+            break;
+        case 12:
+            aux->type = PERF_TYPE_HARDWARE;
+            aux->config = PERF_COUNT_HW_CACHE_REFERENCES;
+            break;
 
     }
     *fd = perf_event_open(aux, 0, -1, -1, 0);
@@ -249,32 +248,18 @@ void heap_sort(long long vetor[], long long t){
     }
 }
 
-long long* couting_sort(long long v[], int tam) {
-//    printf("CoutingSort Comecou\n");
-    // int i = 0;
-    //  int aux[2] = {0, 0};
-
-    // for (i = 0; i <= size; i++)
-    //     aux[array[i]]++;
-
-    // aux[1] += aux[0];
-
-    // for (i = size - 1; i >= 0; i--)
-    //     array[--aux[array[i]]] = array[i];
+long long* counting_sort(long long *v, int tam) {
     long long i;
     long long maior = v[0];
+
     for (i = 1; i < tam; i++) {
         if (v[i] > maior) {
             maior = v[i];
         }
     }
 
-    long long *c = calloc(maior, sizeof(long long));
-    //long long c[maior];
+    long long *c = malloc(maior*sizeof(long long));
 
-    /*for(i = 0;i < maior;i++){
-        c[i] = 0;
-    }*/
     for (i = 0; i < tam; i++) {
         c[v[i]-1]++;
     }
@@ -282,27 +267,56 @@ long long* couting_sort(long long v[], int tam) {
     for (i = 1; i < maior; i++){
         c[i] += c[i - 1];
     }
-    //long long *c = malloc(tam*sizeof(long long));
     long long *b = malloc(maior*sizeof(long long));
     for(i = 0; i < tam;i++) {
         b[--c[v[i] - 1]] = v[i];
-//        c[v[i]-1]--;
     }
-
-//    for(i = 0; i < tam;i++){
-//        printf("%d ", v[i]);
-//    }
-//    printf("\n");
-//    for(i = 0; i < tam;i++){
-//        printf("%d ", b[i]);
-//    }
-//    printf("\n");
-    return c;
+    free(c);
+    free(v);
+    return b;
 }
 
 
 int main(){
-    long long *array = inicializa_array(tam);
+    float clks = CLOCKS_PER_SEC;
+    int i = 0;
+    char *cache_misses_res = (char*) malloc(1000*sizeof(char));
+    char *cache_references_res = (char*) malloc(1000*sizeof(char));
+    while(i < 100){
+	int fd_cache_misses,fd_cache_references;
+	struct perf_event_attr* cache_misses = startPerfStruct(11, &fd_cache_misses);
+	struct perf_event_attr* cache_references = startPerfStruct(12, &fd_cache_references);
+	ativarPerf(fd_cache_misses);
+	ativarPerf(fd_cache_references);
+	ioctl(fd_cache_misses, PERF_EVENT_IOC_RESET,0);
+        ioctl(fd_cache_references,PERF_EVENT_IOC_RESET,0);
+        long long *array = inicializa_array(tam);
+//        quicksort(array, 0, tam);
+//        radixsort(array, tam);
+//        insertion_sort(array, tam);
+//        bubble_sort(array, tam);
+        heap_sort(array, tam);
+//        array = counting_sort(array, tam);
+        //long long toc = clock();
+        desativarPerf(fd_cache_misses);
+	desativarPerf(fd_cache_references);
+	char aux[100];
+	long long count;
+	read(fd_cache_misses, &count, sizeof(long long));
+	sprintf(aux, "%lld,",count);
+	strcat(cache_misses_res, aux);
+	read(fd_cache_references, &count,sizeof(long long));
+	sprintf(aux, "%lld,", count);
+	strcat(cache_references_res, aux);
+        free(array);
+        i++;
+//	ativarPerf(fd_cache_misses);
+//	ativarPerf(fd_cache_references);
+   	close(fd_cache_misses);
+   	close(fd_cache_references);
+    }
+    printf("%s\t%s\n,", cache_misses_res,cache_references_res);
+//    printf("%s\n", cache_references_res);
     // int fd_cacheL1_read_misses, fd_cacheLL_read_misses, fd_PC, fd_page_faults;
     // int fd_cacheL1_read_access, fd_cacheLL_read_access;
     // int fd_cacheL1_write_misses, fd_cacheLL_write_misses;
@@ -336,30 +350,6 @@ int main(){
     // ativarPerf(fd_cache_misses);
     // //ativarPerf(fd_cache_accesses);
 
-    int opc = 6;
-    switch(opc){
-        case 1:
-            quicksort(array,0, tam);
-            break;
-        case 2:
-            radixsort(array, tam);
-            break;
-        case 3:
-            insertion_sort(array,tam);
-            break;
-        case 4:
-            bubble_sort(array,tam);
-            break;
-        case 5:
-            heap_sort(array,tam);
-            break;
-        case 6:
-            array = couting_sort(array, tam);
-            break;
-        default:
-            printf("Opcao invalida\n");
-            break;
-    }
     // desativarPerf(fd_cacheL1_read_misses);
     // desativarPerf(fd_cacheL1_read_access);
     // //desativarPerf(fd_cacheL1_write_misses);
@@ -421,10 +411,6 @@ int main(){
     // //read(fd_cache_accesses, &count, sizeof(long long));
     // //printf("%lld total cache accesses\n", count);
     // //close(fd_cache_accesses);
-
-    float clks = CLOCKS_PER_SEC;
-    printf("%.2fs\n", clock()/clks);
-    return 0;
 }
 
 
