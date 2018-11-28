@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 #include <sys/ioctl.h>
 #include <linux/perf_event.h>
 #include <asm/unistd.h>
@@ -145,6 +146,57 @@ void quicksort(long long values[], long long began, long long end)
         quicksort(values, began, j+1);
     if(i < end)
         quicksort(values, i, end);
+}
+
+// Procedimento auxiliar para efetuar o merge sort
+void merge(long long *array,long long l,long long m , long long r){
+    long long i, j, k;
+    long long n1 = m - l + 1;
+    long long n2 =  r - m;
+
+    /* create temp arrays */
+    long long L[n1], R[n2];
+
+    /* Copy data to temp arrays L[] and R[] */
+    for (i = 0; i < n1; i++)
+        L[i] = array[l + i];
+    for (j = 0; j < n2; j++)
+        R[j] = array[m + 1 +j];
+
+    /* Merge the temp arrays back into arr[l..r]*/
+    i = 0; // Initial index of first subarray
+    j = 0; // Initial index of second subarray
+    for(k = l; k <= r;  k++){
+        if(i<n1 && j<n2){
+            if(L[i]<=R[j]){
+                array[k] = L[i++];
+            }
+            else{
+                array[k] = R[j++];
+            }
+        }
+        else{
+            if(i<n1){
+                array[k]=L[i++];
+            }
+            if(j<n2){
+                array[k]=R[j++];
+            }
+        }
+    }
+
+}
+
+//Procedimento que  efetua a execucao do merge sort
+//ao efetuar a primeira chamada, faze-la passando r = r-1;
+void merge_sort(long long *array, long long l, long long r){
+    if(l < r) {
+        long long middle = (long long) floor((l + r) / 2);
+        merge_sort(array, l, middle);
+        merge_sort(array, middle+1,r);
+        merge(array,l,middle,r);
+    }
+
 }
 
 void radixsort(long long  vetor[], long long tamanho) {
