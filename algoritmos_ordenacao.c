@@ -155,7 +155,10 @@ void merge(long long *array,long long l,long long m , long long r){
     long long n2 =  r - m;
 
     /* create temp arrays */
-    long long L[n1], R[n2];
+    //long long L[n1],R[n2];
+    long long *L,*R;
+    L =  malloc(n1*sizeof(long long));
+    R =  malloc(n2*sizeof(long long));
 
     /* Copy data to temp arrays L[] and R[] */
     for (i = 0; i < n1; i++)
@@ -185,6 +188,8 @@ void merge(long long *array,long long l,long long m , long long r){
         }
     }
 
+   free(L);
+   free(R);
 }
 
 //Procedimento que  efetua a execucao do merge sort
@@ -347,7 +352,8 @@ int main(){
 //        radixsort(array, tam);
 //        insertion_sort(array, tam);
 //        bubble_sort(array, tam);
-        heap_sort(array, tam);
+//        heap_sort(array, tam);
+          merge_sort(array,0,tam-1);
 //        array = counting_sort(array, tam);
         //long long toc = clock();
         desativarPerf(fd_cache_misses);
