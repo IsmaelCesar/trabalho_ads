@@ -8,12 +8,29 @@ declare -a algoritmo=("quick" "radix" "heap" "merge" "counting" "insertion" "bub
 
 gcc algoritmos_ordenacao_tempo.c -o main #Compilando implementacao
 opc_alg=0
-while (( opc_alg < 1))
+while (( opc_alg < 5))
 do
     index=0                                  #indice para controle do array
     echo "Algoritmo ${algoritmo[(( opc_alg ))]}"
 
     while (( index < 16 ))
+    do
+        echo "Iteration $index"
+
+        ./main ${powers[(( index ))]} $opc_alg > tempo_ismael/"$metodo"_"${algoritmo[(( opc_alg ))]}"_${powers[(( index ))]}.txt
+
+        (( index ++ ))
+    done
+
+    (( opc_alg ++ ))
+done    
+
+while (( opc_alg < 7))
+do
+    index=0                                  #indice para controle do array
+    echo "Algoritmo ${algoritmo[(( opc_alg ))]}"
+
+    while (( index < 9 ))
     do
         echo "Iteration $index"
 
