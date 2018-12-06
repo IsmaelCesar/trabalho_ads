@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #Rodar script em modo administrador
 #potencias
@@ -11,9 +10,11 @@ algoritmo="counting"
 
 gcc algoritmos_ordenacao_tempo.c -o main #Compilando implementacao
 index=0                                  #indice para controle do array
-while[index -lt 4]
+while (( index < 4 ))
 do
     echo "Iteration $index"
+
     ./main ${powers[$index]} > $pasta/$metodo_$algoritmo_${powers[$index]}.txt
+    (( index ++ ))
 done
 echo "FINISHED!"
