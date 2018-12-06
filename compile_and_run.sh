@@ -3,18 +3,25 @@
 #potencias
 declare -a powers=("10" "32" "100" "317" "1000" "3163" "10000" "31623" "100000" "316228" "1000000" "3162278" "10000000" "31622777" "100000000" "316227766")
 
-pasta="tempo_ismael"
-
 metodo="ordenacao"
-algoritmo="counting"
+declare -a algoritmo=("quick" "radix" "heap" "merge" "counting" "insertion" "bubble")
 
 gcc algoritmos_ordenacao_tempo.c -o main #Compilando implementacao
-index=0                                  #indice para controle do array
-while (( index < 4 ))
+opc_alg=0
+while (( opc_alg < 1))
 do
-    echo "Iteration $index"
+    index=0                                  #indice para controle do array
+    echo "Algoritmo ${algoritmo[(( opc_alg ))]}"
 
-    ./main ${powers[$index]} > $pasta/$metodo_$algoritmo_${powers[$index]}.txt
-    (( index ++ ))
-done
+    while (( index < 16 ))
+    do
+        echo "Iteration $index"
+
+        ./main ${powers[(( index ))]} $opc_alg > tempo_ismael/"$metodo"_"${algoritmo[(( opc_alg ))]}"_${powers[(( index ))]}.txt
+
+        (( index ++ ))
+    done
+
+    (( opc_alg ++ ))
+done    
 echo "FINISHED!"
