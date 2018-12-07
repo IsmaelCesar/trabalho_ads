@@ -265,7 +265,48 @@ void bubble_sort(long long vetor[], long long t) {
 }
 
 
+//Procedimento auxiliar para calcular o pai de um elemento inserido.
+void calcula_pai_ei(int *ei,int *paiEi){
+    int tempEi = *ei;
+    //ifte para verificar se ei é impar ou par e calcular quem é o elemento pai
+    if(tempEi % 2 == 0)
+        *paiEi = tempEi/2 -1;//divissao inteira
+    else
+        *paiEi = tempEi/2;
+}
+
+/* Procedimento auxiliar para construir uma
+ * heap maxima apartir de arrays aleatorios
+ * */
+void constroi_heap_maxima(long long vetor[],int t){
+    //Primeiro loop para insersao de elementos
+    //ei -> Elemento inserido
+    int ei = 0;
+    for(int i=0;i < tam;i++){
+        ei=i;
+        int paiEi = 0;//Variavel auxiliar para o calculo do pai_ei
+        calcula_pai_ei(&ei,&paiEi);
+        //segundo loop para construcao da heaṕ maxima
+        while(ei>0 ){
+            if(vetor[ei] > vetor[paiEi]){
+                //Efetua a troca
+                long long temp= vetor[paiEi];
+                vetor[paiEi] = vetor[ei];
+                vetor[ei]= temp;
+                ei = paiEi;
+                calcula_pai_ei(&ei,&paiEi);
+                //imprime_array(vetor,tam);
+            }
+            else
+                ei = 0;//Força saida do loop
+        }
+        //imprime_array(vetor,tam);
+    }
+
+}
+
 void heap_sort(long long vetor[], long long t){
+    constroi_heap_maxima(vetor,t);//pega um array de inteiros aleatorios e constroi a heap maxima
     int i = t-1;
     while( i > 0){
         //troca
